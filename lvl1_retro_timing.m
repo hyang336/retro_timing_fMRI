@@ -208,10 +208,4 @@ for shift=1:length(time_to_TR1)
 end
 
 
-%% plot some figures
-% In a perfect world every voxel will have a single min value in terms of
-% the ResMS as a function of time shifting. We may need to first filter out
-% the informative voxels (e.g. those having only one minimum and the peak
-% is tall), then using those voxels to select the correct timing.
-
 end
