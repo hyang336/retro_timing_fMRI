@@ -6,7 +6,7 @@
 
 % For now doesn't care about subject responses, just code the goal cue and
 % the stimulus as two conditions
-function lvl1_retro_timing(fmriprep_dir,behav_dir,sub,output,TR,age)
+function lvl1_retro_timing(fmriprep_dir,behav_dir,sub,output,TR,age,fold,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
@@ -21,7 +21,25 @@ function lvl1_retro_timing(fmriprep_dir,behav_dir,sub,output,TR,age)
 % regressors need not to be shifted since those were estimated from the
 % imaging data
 
-time_to_TR1=[0:0.1:10];
+%% input parser
+% Optional input:
+% 'bin_num': 
+% 'start_time': 
+% 'end_time': 
+p=inputParser;
+
+default.bin_num=101; %number of endpoints between the starting and the end time points (bin number + 1)
+
+default.start_time=0;
+default.end_time=10;
+
+addParameter(p,'bin_num',default.bin_num,@isint);
+addParameter(p,'start_time',default.start_time,@isnumeric);
+addParameter(p,'end_time',default.end_time,@isnumeric);
+
+parse(p,varargin{:});
+%%
+time_to_TR1=linspace(p.Results.start_time,p.Results.end_time,p.Results.bin_num);
 
 %hard-coded cue duration and stim duration
 cue_dr=2;
@@ -31,11 +49,11 @@ stim_dr=4;
 if ~exist(strcat(output,'/',sub),'dir')
     mkdir (output,sub);
 end
-if ~exist(strcat(output,'/',sub,'_ResMS'),'dir')
-    mkdir (output,[sub,'_ResMS']);
+if ~exist(strcat(output,'/',sub,'_ResMS_fold-',num2str(fold)),'dir')
+    mkdir (output,[sub,'_ResMS_fold-',num2str(fold)]);
 end
 temp_dir=strcat(output,'/',sub,'/');
-ResMS_dir=strcat(output,'/',sub,'_ResMS/');
+ResMS_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
 runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
