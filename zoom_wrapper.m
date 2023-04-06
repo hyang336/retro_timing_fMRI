@@ -37,7 +37,7 @@ while zoom_in
 
     res_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject
-    tile=linspace(0,10,bin_num);
+    tile=linspace(s_time,e_time,bin_num);
     zoom_factor=10;% we are gonna sample n/zoom_factor number of points centered on the min
     num_left=floor(((bin_num-1)/zoom_factor)/2);
     num_right=num_left;
