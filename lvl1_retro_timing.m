@@ -28,11 +28,18 @@ function lvl1_retro_timing(fmriprep_dir,behav_dir,sub,output,TR,age,fold,varargi
 % 'end_time': 
 p=inputParser;
 
+%microtime resolution and bin number for matlabbatch
+default.mt_res=16;
+default.mt_0=8;
+
 default.bin_num=101; %number of endpoints between the starting and the end time points (bin number + 1)
 
 default.start_time=0;
 default.end_time=10;
 
+%these isint functions are from the Princeton MVPA toolbox
+addParameter(p,'mt_res',default.mt_res,@isint);
+addParameter(p,'mt_0',default.mt_0,@isint);
 addParameter(p,'bin_num',default.bin_num,@isint);
 addParameter(p,'start_time',default.start_time,@isnumeric);
 addParameter(p,'end_time',default.end_time,@isnumeric);
@@ -74,6 +81,10 @@ substr.runexp=spm_vol(strcat(temp_dir,erase(substr.run,'.gz')));
 %substr.runsmooth=crapsmoothspm(temp_dir,erase(substr.run,'.gz'),[4 4 4]);
 
 load('retro_timing_matlabbatch_lvl1.mat');%initialized matlabbatch template MUST HAVE ALL THE NECESSARY FIELDS
+
+%change microtime resolution and ref bin
+matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t=p.Results.mt_res;
+matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t0=p.Results.mt_0;
 
 %record which condtions each run has, useful for specifying design matrix
 %at the end runbycond=cell(length(substr.run),2);%maximam 2 condtions per
