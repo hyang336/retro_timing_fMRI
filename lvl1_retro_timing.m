@@ -6,7 +6,7 @@
 
 % For now doesn't care about subject responses, just code the goal cue and
 % the stimulus as two conditions
-function lvl1_retro_timing(fmriprep_dir,behav_dir,sub,output,TR,age,fold,varargin)
+function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,output,TR,age,fold,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
@@ -63,7 +63,8 @@ temp_dir=strcat(output,'/',sub,'/');
 ResMS_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
-runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
+%runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
+runkey=fullfile(strcat(derivative_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-MNI*preproc_bold.nii.gz');
 
 runfile=dir(runkey);
 substr=struct();%put everythin in a struct for easy organize

@@ -1,7 +1,7 @@
 fold=2;
 res_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
-s_time=2.7;
-e_time=3.7;
+s_time=2.6;
+e_time=3.6;
 bin_num=101;
 tile=linspace(s_time,e_time,bin_num);
 volume_avg_res=[];

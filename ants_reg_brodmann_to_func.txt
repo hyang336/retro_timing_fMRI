@@ -1,0 +1,3 @@
+antsRegistrationSyN.sh -d 3 -f ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/sub-019_task-GoalAttnMemTest_dir-PA_run-01_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz -m ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/brodmann.nii -o ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/ants
+
+antsApplyTransforms -d 3 -i ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/brodmann.nii -r ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/sub-019_task-GoalAttnMemTest_dir-PA_run-01_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz -o ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/brodmann_resampled.nii.gz -t ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/ants1Warp.nii.gz -t ~/scratch/HY_gdrive_sherlock/amass_recovery_mask/ants0GenericAffine.mat
