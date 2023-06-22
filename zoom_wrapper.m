@@ -3,7 +3,7 @@
 % the ResMS as a function of time shifting. We may need to first filter out
 % the informative voxels (e.g. those having only one minimum and the peak
 % is tall), then using those voxels to select the correct timing.
-function zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,output,TR,age,mask,varargin)
+function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,mask,varargin)
 
 %% input parser
 % Optional input:
@@ -46,9 +46,9 @@ zoom_in=1;
 while zoom_in
 
     %perform time-shifting GLM
-    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,output,TR,age,fold,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
+    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,fold,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
 
-    res_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
+    res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject
     tile=linspace(s_time,e_time,bin_num);
     zoom_factor=10;% we are gonna sample n/zoom_factor number of points centered on the min
@@ -69,9 +69,10 @@ while zoom_in
     min_ind=find(volume_avg_res==min(volume_avg_res));
     %min_time=tile(min_ind);
 
-    %right and left of the min
-    left_df=diff(volume_avg_res(min_ind-num_left:min_ind));
-    right_df=diff(volume_avg_res(min_ind:min_ind+num_right));
+    %right and left of the min, need to handle the cases where left index
+    %may be <0 and right index may be outside the range
+    left_df=diff(volume_avg_res(max(1,min_ind-num_left):min_ind));
+    right_df=diff(volume_avg_res(min_ind:min(length(volume_avg_res),min_ind+num_right)));
     left_mono_dec=all(left_df<0);
     right_mono_inc=all(right_df>0);
 
@@ -79,8 +80,12 @@ while zoom_in
         disp('monotonic on both sides, keep zooming in on global minimum')
         fold=fold+1;
         %new start and end time
-        s_time=tile(min_ind-5);
-        e_time=tile(min_ind+5);
+        s_time=tile(max(1,min_ind-num_left));
+        e_time=tile(min(length(volume_avg_res),min_ind+num_right));
+        %Note that by handling the boundaries of the array the temporal
+        %resolution of the >1 fold may be higher than 10x the original res
+        
+
         %change microtime resolution (# of time bins per TR)
         mt_res=mt_res*zoom_factor*2;
         %change reference time bin to half of microtime resolution
@@ -90,9 +95,13 @@ while zoom_in
         zoom_in=0;
         disp('no longer monotonic on both sides, stop zooming in, start smoothing')
         
+        %save results
+        minind=find(volume_avg_res==min(volume_avg_res));
+        minoffset=tile_str{minind};
+        
         %smoothing
         
     end
-
+    
 end
 end

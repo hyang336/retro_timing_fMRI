@@ -6,7 +6,7 @@
 
 % For now doesn't care about subject responses, just code the goal cue and
 % the stimulus as two conditions
-function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,output,TR,age,fold,varargin)
+function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,fold,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
@@ -56,15 +56,15 @@ stim_dr=4;
 if ~exist(strcat(output,'/',sub),'dir')
     mkdir (output,sub);
 end
-if ~exist(strcat(output,'/',sub,'_ResMS_fold-',num2str(fold)),'dir')
-    mkdir (output,[sub,'_ResMS_fold-',num2str(fold)]);
+if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
+    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
 end
 temp_dir=strcat(output,'/',sub,'/');
-ResMS_dir=strcat(output,'/',sub,'_ResMS_fold-',num2str(fold));
+ResMS_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
 %runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
-runkey=fullfile(strcat(derivative_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-MNI*preproc_bold.nii.gz');
+runkey=fullfile(strcat(derivative_dir,'/',sub,'/func/'),strcat('*GoalAttnMemTest*run-0',num2str(run),'_space-MNI*preproc_bold.nii.gz'));
 
 runfile=dir(runkey);
 substr=struct();%put everythin in a struct for easy organize
@@ -92,14 +92,16 @@ matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t0=p.Results.mt_0;
 %run
 
 %map different naming schemes
-sub_beh=sub;
-sub_beh(4)='_';
-sub_beh=[sub_beh(1:4),age,sub_beh(5:end)];
+% sub_beh=sub;
+% sub_beh(4)='_';
+% sub_beh=[sub_beh(1:4),age,sub_beh(5:end)];
 
 %load behavioural file
-raw=readtable(strcat(behav_dir,'/','amass_fmri_',sub_beh,'_session_1_block_1_phase_ret_data.csv'));
+raw=readtable(strcat(behav_dir,'/',sub,'_onsets_RAND_v',num2str(rand_v),'.csv'));
+current_run=raw.run==run;
+raw_run=raw(current_run,:);
 %extract the two relevant timing info (goal cue and stim)
-substr.runevent=[raw.goal_onset,raw.stim_onset];
+substr.runevent=[raw_run.goal_onset,raw_run.stim_onset];
 
 %confounds
 conf_name=strcat(fmriprep_dir,'/',sub,'/func/',sub,'_','*run-01_desc-confound*.tsv');%use task{1} and run{1} since it's iteratively defined
@@ -200,10 +202,15 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.RT = TR;%remember to change this accor
 matlabbatch{2}.spm.stats.fmri_est.spmmat = {strcat(temp_dir,'SPM.mat')};
 
 %condition names and boxcar duration
+% 20230621 HY: trying stick function for duration, the boxcar has
+% additional timing info but also more assumptions about the underlying
+% neural responses
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).name = 'goalcue';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'stim';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
 
 %gotta fill these fields too
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
