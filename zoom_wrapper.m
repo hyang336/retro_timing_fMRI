@@ -39,7 +39,9 @@ e_time=p.Results.end_time;
 %%
 %load V1 (Brodmann 17) mask, it's not very good (from DPABI from MRIcron)
 %but probably good enough
-brod=niftiread(mask);
+if ~strcmp(mask,'none')
+    brod=niftiread(mask);
+end
 
 fold=1;
 zoom_in=1;
@@ -60,7 +62,12 @@ while zoom_in
     for i=1:length(tile)
         tile_str{i}=sprintf('%g', tile(i));
         whole_vol=niftiread([res_dir,'/ResMS',tile_str{i},'.nii']);
-        volume_avg_res(i)=mean(whole_vol(brod==17),"all","omitnan");%brodmann 17 is V1
+        if ~strcmp(mask,'none')
+            volume_avg_res(i)=mean(whole_vol(brod==17),"all","omitnan");%brodmann 17 is V1
+        else
+            volume_avg_res(i)=mean(whole_vol,"all","omitnan");%whole-brain avg
+        end
+
     end
 
     %plot(tile,volume_avg_res);
@@ -84,7 +91,7 @@ while zoom_in
         e_time=tile(min(length(volume_avg_res),min_ind+num_right));
         %Note that by handling the boundaries of the array the temporal
         %resolution of the >1 fold may be higher than 10x the original res
-        
+
 
         %change microtime resolution (# of time bins per TR)
         mt_res=mt_res*zoom_factor*2;
@@ -94,14 +101,14 @@ while zoom_in
     else%not monotonic on both sides, smooth the curve to get the minimum estimate
         zoom_in=0;
         disp('no longer monotonic on both sides, stop zooming in, start smoothing')
-        
+
         %save results
         minind=find(volume_avg_res==min(volume_avg_res));
         minoffset=tile_str{minind};
-        
+
         %smoothing
-        
+
     end
-    
+
 end
 end
