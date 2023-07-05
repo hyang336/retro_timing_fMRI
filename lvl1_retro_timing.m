@@ -59,7 +59,11 @@ end
 if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
     mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
 end
-temp_dir=strcat(output,'/',sub,'/');
+%add a random number to the sub folder so that multiple instances don't try
+%to write and move the same file
+randID=randperm(9,4);
+randID=strrep(num2str(randID),' ','');
+temp_dir=strcat(output,'/',sub,'_',randID,'/');
 ResMS_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
