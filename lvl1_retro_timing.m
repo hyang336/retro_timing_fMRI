@@ -52,17 +52,19 @@ time_to_TR1=linspace(p.Results.start_time,p.Results.end_time,p.Results.bin_num);
 cue_dr=2;
 stim_dr=4;
 
-%subject-specific output dir
-if ~exist(strcat(output,'/',sub),'dir')
-    mkdir (output,sub);
-end
-if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
-    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
-end
 %add a random number to the sub folder so that multiple instances don't try
 %to write and move the same file
 randID=randperm(9,4);
 randID=strrep(num2str(randID),' ','');
+
+%subject-specific output dir
+if ~exist(strcat(output,'/',sub,'_',randID),'dir')
+    mkdir (output,[sub,'_',randID]);
+end
+if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
+    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
+end
+
 temp_dir=strcat(output,'/',sub,'_',randID,'/');
 ResMS_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 
