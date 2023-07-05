@@ -52,20 +52,18 @@ time_to_TR1=linspace(p.Results.start_time,p.Results.end_time,p.Results.bin_num);
 cue_dr=2;
 stim_dr=4;
 
-%add a random number to the sub folder so that multiple instances don't try
-%to write and move the same file
-randID=randperm(9,4);
-randID=strrep(num2str(randID),' ','');
+%add a htag to the sub folder based on sub, run, and rand_v so that
+%multiple instances don't try to write and move the same file
 
-%subject-specific output dir
-if ~exist(strcat(output,'/',sub,'_',randID),'dir')
-    mkdir (output,[sub,'_',randID]);
+%subject,run,rand_version-specific output dir
+if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run)),'dir')
+    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run)]);
 end
 if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
     mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
 end
 
-temp_dir=strcat(output,'/',sub,'_',randID,'/');
+temp_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run));
 ResMS_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
