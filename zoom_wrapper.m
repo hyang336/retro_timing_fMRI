@@ -40,7 +40,8 @@ e_time=p.Results.end_time;
 %load V1 (Brodmann 17) mask, it's not very good (from DPABI from MRIcron)
 %but probably good enough
 if ~strcmp(mask,'none')
-    brod=niftiread(mask);
+    mask_header=spm_vol(mask);
+    brod=spm_read_vols(mask_header);
 end
 
 fold=1;
@@ -58,14 +59,15 @@ while zoom_in
     num_right=num_left;
 
     % get the volume average Res
-    volume_avg_res=[];
+    volume_sum_res=[];
     for i=1:length(tile)
         tile_str{i}=sprintf('%g', tile(i));
-        whole_vol=niftiread([res_dir,'/ResMS',tile_str{i},'.nii']);
+        whole_vol_header=spm_vol([res_dir,'/ResMS',tile_str{i},'.nii']);
+        whole_vol=spm_read_vols(whole_vol_header);
         if ~strcmp(mask,'none')
-            volume_avg_res(i)=mean(whole_vol(brod==17),"all","omitnan");%brodmann 17 is V1
+            volume_sum_res(i)=sum(whole_vol(brod==17),"all","omitnan");%brodmann 17 is V1
         else
-            volume_avg_res(i)=mean(whole_vol,"all","omitnan");%whole-brain avg
+            volume_sum_res(i)=sum(whole_vol,"all","omitnan");%whole-brain avg
         end
 
     end
@@ -73,13 +75,13 @@ while zoom_in
     %plot(tile,volume_avg_res);
 
     %find the global minimum of volume residual
-    min_ind=find(volume_avg_res==min(volume_avg_res));
+    min_ind=find(volume_sum_res==min(volume_sum_res));
     %min_time=tile(min_ind);
 
     %right and left of the min, need to handle the cases where left index
     %may be <0 and right index may be outside the range
-    left_df=diff(volume_avg_res(max(1,min_ind-num_left):min_ind));
-    right_df=diff(volume_avg_res(min_ind:min(length(volume_avg_res),min_ind+num_right)));
+    left_df=diff(volume_sum_res(max(1,min_ind-num_left):min_ind));
+    right_df=diff(volume_sum_res(min_ind:min(length(volume_sum_res),min_ind+num_right)));
     left_mono_dec=all(left_df<0);
     right_mono_inc=all(right_df>0);
 
@@ -88,7 +90,7 @@ while zoom_in
         fold=fold+1;
         %new start and end time
         s_time=tile(max(1,min_ind-num_left));
-        e_time=tile(min(length(volume_avg_res),min_ind+num_right));
+        e_time=tile(min(length(volume_sum_res),min_ind+num_right));
         %Note that by handling the boundaries of the array the temporal
         %resolution of the >1 fold may be higher than 10x the original res
 
@@ -103,7 +105,7 @@ while zoom_in
         disp('no longer monotonic on both sides, stop zooming in, start smoothing')
 
         %save results
-        minind=find(volume_avg_res==min(volume_avg_res));
+        minind=find(volume_sum_res==min(volume_sum_res));
         minoffset=tile_str{minind};
 
         %smoothing
