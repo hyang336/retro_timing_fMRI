@@ -3,7 +3,7 @@
 % the ResMS as a function of time shifting. We may need to first filter out
 % the informative voxels (e.g. those having only one minimum and the peak
 % is tall), then using those voxels to select the correct timing.
-function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,mask,varargin)
+function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,mask,varargin)
 
 %% input parser
 % Optional input:
@@ -36,12 +36,19 @@ mt_0=p.Results.mt_0;
 bin_num=p.Results.bin_num;
 s_time=p.Results.start_time;
 e_time=p.Results.end_time;
+
 %%
-%load V1 (Brodmann 17) mask, it's not very good (from DPABI from MRIcron)
+%Using V1 (Brodmann 17) mask, it's not very good (from DPABI from MRIcron)
 %but probably good enough
-if ~strcmp(mask,'none')
-    mask_header=spm_vol(mask);
-    brod=spm_read_vols(mask_header);
+
+%Or whole-brain subject mask in MNI
+
+%no longer load it in at evaluation stage, but pass it as an explicit mask
+%in the model estimation stage
+if ~strcmp(mask,'whole')
+    mask_file=mask;
+else
+    mask_file=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_res-2_desc-brain_mask.nii.gz');
 end
 
 fold=1;
@@ -49,7 +56,7 @@ zoom_in=1;
 while zoom_in
 
     %perform time-shifting GLM
-    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,fold,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
+    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,mask_file,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
 
     res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject
@@ -64,12 +71,7 @@ while zoom_in
         tile_str{i}=sprintf('%g', tile(i));
         whole_vol_header=spm_vol([res_dir,'/ResMS',tile_str{i},'.nii']);
         whole_vol=spm_read_vols(whole_vol_header);
-        if ~strcmp(mask,'none')
-            volume_sum_res(i)=sum(sum(sum(whole_vol(brod==17),'omitnan'),'omitnan'),'omitnan');%brodmann 17 is V1
-        else
-            volume_sum_res(i)=sum(sum(sum(whole_vol,'omitnan'),'omitnan'),'omitnan');%whole-brain avg
-        end
-
+        volume_sum_res(i)=sum(sum(sum(whole_vol,'omitnan'),'omitnan'),'omitnan');%whole-brain avg
     end
 
     %plot(tile,volume_avg_res);

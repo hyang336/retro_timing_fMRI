@@ -6,7 +6,7 @@
 
 % For now doesn't care about subject responses, just code the goal cue and
 % the stimulus as two conditions
-function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,age,fold,varargin)
+function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,mask,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
@@ -204,17 +204,15 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.RT = TR;%remember to change this accor
 %matlabbatch{1}.spm.stats.fmri_spec.mask = {maskfile};%specify explicit
 %mask, using avg whole-brain mask specify the to-be-output SPM.mat dir
 matlabbatch{2}.spm.stats.fmri_est.spmmat = {strcat(temp_dir,'SPM.mat')};
+matlabbatch{1}.spm.stats.fmri_spec.mask = {mask};%specify explicit mask, using subject-specific MNI mask by default
 
 %condition names and boxcar duration
-% 20230621 HY: trying stick function for duration, the boxcar has
-% additional timing info but also more assumptions about the underlying
-% neural responses
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).name = 'goalcue';
-%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'stim';
-%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
 
 %gotta fill these fields too
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
@@ -223,6 +221,8 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 1;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 1;
+
+%matlabbatch{1}.spm.stats.fmri_spec.sess.hpf=0;%turn off high-pass filter
 
 %initil setup for SPM
 spm('defaults', 'FMRI');
@@ -236,6 +236,7 @@ for shift=1:length(time_to_TR1)
     stim_onset=substr.runevent(:,2)-time_to_TR1(shift);
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = goal_onset;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = stim_onset;
+    
     %run here to generate SPM.mat
     spm_jobman('run',matlabbatch(1:2));
 
