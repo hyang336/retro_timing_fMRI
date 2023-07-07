@@ -65,9 +65,9 @@ while zoom_in
         whole_vol_header=spm_vol([res_dir,'/ResMS',tile_str{i},'.nii']);
         whole_vol=spm_read_vols(whole_vol_header);
         if ~strcmp(mask,'none')
-            volume_sum_res(i)=sum(whole_vol(brod==17),"all","omitnan");%brodmann 17 is V1
+            volume_sum_res(i)=sum(sum(sum(whole_vol(brod==17),'omitnan'),'omitnan'),'omitnan');%brodmann 17 is V1
         else
-            volume_sum_res(i)=sum(whole_vol,"all","omitnan");%whole-brain avg
+            volume_sum_res(i)=sum(sum(sum(whole_vol,'omitnan'),'omitnan'),'omitnan');%whole-brain avg
         end
 
     end
