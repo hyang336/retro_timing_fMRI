@@ -77,10 +77,17 @@ substr.id=sub;
 
 %unzip the nii.gz files into the temp directory
 gunzip(strcat(fmriprep_dir,'/',sub,'/func/',substr.run),temp_dir);
-%gunzip(maskfile,temp_dir); load the nii files, primarily to get the number
+%also need to unzip the mask
+pattern='\.gz$';
+match = regexp(mask, pattern, 'once');
+if ~isempty(match)
+    gunzip(mask,temp_dir);
+end
+%load the nii files, primarily to get the number
 %of time points
 substr.runexp=spm_vol(strcat(temp_dir,erase(substr.run,'.gz')));
-
+maskfiles = dir(fullfile(temp_dir, '*brain_mask*'));
+maskfile=[temp_dir,maskfiles.name];
 %call smooth function, which is in analyses/pilot/ smooth the unzipped .nii
 %files, return smoothed .nii as 1-by-run cells to a field in substr
 %substr.runsmooth=crapsmoothspm(temp_dir,erase(substr.run,'.gz'),[4 4 4]);
@@ -204,7 +211,7 @@ matlabbatch{1}.spm.stats.fmri_spec.timing.RT = TR;%remember to change this accor
 %matlabbatch{1}.spm.stats.fmri_spec.mask = {maskfile};%specify explicit
 %mask, using avg whole-brain mask specify the to-be-output SPM.mat dir
 matlabbatch{2}.spm.stats.fmri_est.spmmat = {strcat(temp_dir,'SPM.mat')};
-matlabbatch{1}.spm.stats.fmri_spec.mask = {mask};%specify explicit mask, using subject-specific MNI mask by default
+matlabbatch{1}.spm.stats.fmri_spec.mask = {maskfile};%specify explicit mask, using subject-specific MNI mask by default
 
 %condition names and boxcar duration
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).name = 'goalcue';
