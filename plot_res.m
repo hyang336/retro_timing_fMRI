@@ -1,11 +1,11 @@
 fold=1;
 rand_v=1;
-run=1;
+run=8;
 %res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
-%res_dir=['C:\Users\haozi\Downloads\sub-029_Rand_1_Run_',num2str(run),'_ResMS_fold-1'];
-res_dir='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\lvl1_retro_timing\sub-029_Rand_1_Run_1_ResMS_fold-1';
-s_time=0;
-e_time=10;
+res_dir=['C:\Users\haozi\Downloads\sub-029_Rand_1_Run_',num2str(run),'_ResMS_fold-1'];
+%res_dir='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\lvl1_retro_timing\sub-029_Rand_1_Run_1_ResMS_fold-1';
+s_time=-5;
+e_time=5;
 bin_num=101;
 tile=linspace(s_time,e_time,bin_num);
 volume_avg_res=[];
@@ -20,6 +20,7 @@ filename=tile_str{minind}
 
 %%plot the raw time series of the .nii
 brod=niftiread(mask);
+epi=niftiread(epi_f);
 [v1x,v1y,v1z]=ind2sub(size(brod),find(brod==17));
 timeseries=[];
 for i=1:length(v1x)
@@ -27,6 +28,7 @@ for i=1:length(v1x)
 end
 figure(1)%V1
 plot([0:2:2*(size(timeseries,2)-1)],mean(timeseries,1));
+
 % A quick fft on the raw time series
 V1raw_FFT=fft(mean(timeseries,1));
 Fs=0.5;

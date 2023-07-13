@@ -229,7 +229,14 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 1;
 
-%matlabbatch{1}.spm.stats.fmri_spec.sess.hpf=0;%turn off high-pass filter
+% Changing the filter may not be very useful, although there may be a drift
+% in the BOLD signal overtime, it is unlikely to be related to the task
+% onset, moreover, the regressors in the GLM are all stationary so the
+% model fit won't reflect the degree to which the regressors capture this
+% drift.
+
+%matlabbatch{1}.spm.stats.fmri_spec.sess.hpf=1280;%lower the cut-off frequency
+%for high-pass filter, units in Second
 
 %initil setup for SPM
 spm('defaults', 'FMRI');
