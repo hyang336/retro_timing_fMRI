@@ -1,25 +1,36 @@
+%% The offset in the res plot could be caused by the fact that they waited for a t-trigger to start a trial, which could accumulated at max 420 ms lag through a run, which will make the regressors inaccurate in the GLM
+
 fold=1;
 rand_v=1;
-run=8;
+run=2;
 %res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 res_dir=['C:\Users\haozi\Downloads\sub-029_Rand_1_Run_',num2str(run),'_ResMS_fold-1'];
 %res_dir='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\lvl1_retro_timing\sub-029_Rand_1_Run_1_ResMS_fold-1';
+mask='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\rbrodmann.nii';
 s_time=-5;
 e_time=5;
 bin_num=101;
 tile=linspace(s_time,e_time,bin_num);
 volume_avg_res=[];
+brod=niftiread(mask);
+v1ind=find(brod==17);
     for i=1:length(tile)
         tile_str{i}=sprintf('%g', tile(i));
-        volume_avg_res(i)=mean(niftiread([res_dir,'/ResMS',tile_str{i},'.nii']),"all","omitnan");
+        res_vol=niftiread([res_dir,'/ResMS',tile_str{i},'.nii']);
+        assert(all(size(res_vol)==size(brod)));%make sure the residule volumne and the ROI file has the same size otherwise the linear index will be wrong
+        V1res=res_vol(v1ind);
+        volume_avg_res(i)=mean(V1res,"all","omitnan");
     end
-plot(tile,volume_avg_res);
+%median smooth
+volume_avg_res_smooth=medfilt1(volume_avg_res);
+figure()
+plot(tile,volume_avg_res_smooth);
 
 minind=find(volume_avg_res==min(volume_avg_res));
 filename=tile_str{minind}
 
 %%plot the raw time series of the .nii
-brod=niftiread(mask);
+%brod=niftiread(mask);
 epi=niftiread(epi_f);
 [v1x,v1y,v1z]=ind2sub(size(brod),find(brod==17));
 timeseries=[];

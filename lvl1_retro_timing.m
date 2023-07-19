@@ -139,6 +139,20 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.scans = sliceinfo;
 % look into the json file
 fn=fieldnames(substr.runconf);
 
+%6 motion regressors since we did not run ICA on these data
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(1).name = 'trans_x';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(1).val = substr.runconf.('trans_x')(1:end);
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(2).name = 'trans_y';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(2).val = substr.runconf.('trans_y')(1:end);
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(3).name = 'trans_z';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(3).val = substr.runconf.('trans_z')(1:end);
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(4).name = 'rot_x';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(4).val = substr.runconf.('rot_x')(1:end);
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(5).name = 'rot_y';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(5).val = substr.runconf.('rot_y')(1:end);
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(6).name = 'rot_z';
+matlabbatch{1}.spm.stats.fmri_spec.sess.regress(6).val = substr.runconf.('rot_z')(1:end);
+
 %find the index for the first 6 occurance of WM and CSF in masks, also
 %account for the posssibility that there might be fewer than 6
 WM_ind=find(cellfun(@(x)contains(x,'w_comp_cor'),fn));
@@ -151,26 +165,27 @@ if length(WM_ind)>=6
     WM_6='w_comp_cor_05';
 
     %add these components as regressors into the GLM
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(1).name = 'acomp_WM1';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(1).val = substr.runconf.(WM_1)(1:end);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(2).name = 'acomp_WM2';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(2).val = substr.runconf.(WM_2)(1:end);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(3).name = 'acomp_WM3';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(3).val = substr.runconf.(WM_3)(1:end);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(4).name = 'acomp_WM4';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(4).val = substr.runconf.(WM_4)(1:end);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(5).name = 'acomp_WM5';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(5).val = substr.runconf.(WM_5)(1:end);
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(6).name = 'acomp_WM6';
-    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(6).val = substr.runconf.(WM_6)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(7).name = 'acomp_WM1';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(7).val = substr.runconf.(WM_1)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(8).name = 'acomp_WM2';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(8).val = substr.runconf.(WM_2)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(9).name = 'acomp_WM3';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(9).val = substr.runconf.(WM_3)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(10).name = 'acomp_WM4';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(10).val = substr.runconf.(WM_4)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(11).name = 'acomp_WM5';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(11).val = substr.runconf.(WM_5)(1:end);
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(12).name = 'acomp_WM6';
+    matlabbatch{1}.spm.stats.fmri_spec.sess.regress(12).val = substr.runconf.(WM_6)(1:end);
 
-    w=6;%how many WM regressors we have
+    w=6+6;%how many regressors we have so far
 else
     for w=1:length(WM_ind)
         WM=fn{WM_ind(w)};
-        matlabbatch{1}.spm.stats.fmri_spec.sess.regress(w).name = strcat('acomp_WM',num2str(w));
-        matlabbatch{1}.spm.stats.fmri_spec.sess.regress(w).val = substr.runconf.(WM)(1:end);
+        matlabbatch{1}.spm.stats.fmri_spec.sess.regress(w+6).name = strcat('acomp_WM',num2str(w));
+        matlabbatch{1}.spm.stats.fmri_spec.sess.regress(w+6).val = substr.runconf.(WM)(1:end);
     end
+    w=w+6;%account for the 6 motion regressor
 end
 
 CSF_ind=find(cellfun(@(x)contains(x,'c_comp_cor'),fn));
