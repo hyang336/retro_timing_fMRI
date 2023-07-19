@@ -38,17 +38,23 @@ s_time=p.Results.start_time;
 e_time=p.Results.end_time;
 
 %%
-%Using V1 (Brodmann 17) mask, it's not very good (from DPABI from MRIcron)
-%but probably good enough
+%The GLM is always run using the explicit fmriprep subject-specific
+%whole-brain mask in MNI, with implicit mask turned off.
 
-%Or whole-brain subject mask in MNI
+%depending on whether we specify another mask or pass in "whole" as the
+%mask parameter, we will calculate the sum of GLM residual within the
+%specified region (assuming the specified mask is Brodmann coded).
+
+%Define fmriprep whole-brain subject mask in MNI
+sub_wbrain=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_res-2_desc-brain_mask.nii.gz');
 
 %no longer load it in at evaluation stage, but pass it as an explicit mask
 %in the model estimation stage
 if ~strcmp(mask,'whole')
     mask_file=mask;
+    brod=niftiread(mask_file);
 else
-    mask_file=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_res-2_desc-brain_mask.nii.gz');
+    mask_file=sub_wbrain;
 end
 
 fold=1;
@@ -71,7 +77,11 @@ while zoom_in
         tile_str{i}=sprintf('%g', tile(i));
         whole_vol_header=spm_vol([res_dir,'/ResMS',tile_str{i},'.nii']);
         whole_vol=spm_read_vols(whole_vol_header);
-        volume_sum_res(i)=sum(sum(sum(whole_vol,'omitnan'),'omitnan'),'omitnan');%whole-brain avg
+        if ~strcmp(mask,'whole')
+            volume_sum_res(i)=sum(sum(sum(whole_vol(brod==17),'omitnan'),'omitnan'),'omitnan');%brodmann 17 is V1, assuming the mask is the Brodmann mask
+        else
+            volume_sum_res(i)=sum(sum(sum(whole_vol,'omitnan'),'omitnan'),'omitnan');%whole-brain avg
+        end
     end
 
     %plot(tile,volume_avg_res);
