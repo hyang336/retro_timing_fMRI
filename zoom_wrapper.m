@@ -51,7 +51,8 @@ sub_wbrain=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_
 %no longer load it in at evaluation stage, but pass it as an explicit mask
 %in the model estimation stage
 if ~strcmp(mask,'whole')
-    brod=niftiread(mask);
+    brod_header=spm_vol(mask);
+    brod=spm_read_vols(brod_header);
 end
 
 fold=1;
