@@ -51,10 +51,7 @@ sub_wbrain=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_
 %no longer load it in at evaluation stage, but pass it as an explicit mask
 %in the model estimation stage
 if ~strcmp(mask,'whole')
-    mask_file=mask;
-    brod=niftiread(mask_file);
-else
-    mask_file=sub_wbrain;
+    brod=niftiread(mask);
 end
 
 fold=1;
@@ -62,7 +59,7 @@ zoom_in=1;
 while zoom_in
 
     %perform time-shifting GLM
-    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,mask_file,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
+    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
 
     res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject
