@@ -1,19 +1,6 @@
-%% Retroactively figure out the timing between task start and scan start
-% Takes in post-fmriprep functional data and fit GLMs with different
-% time-offsets, then determine the correct timing based on overall R^2
+%% no rand_v, otherwise the same as lvl1_retro_timing
 
-% 20230801 actually I just realized that we don't really need to do the
-% offsetting in the timing files, becasue we are not changing the imaging
-% data in anyway. And we can pretty much just fit multiple GLMs with the
-% actual timing file and see whether the min occur at 0 offset. The only
-% thing changing the timing in the onset files does is changing the range of
-% our search space
-
-% Prototypical script that only looks at one run from one subject
-
-% For now doesn't care about subject responses, just code the goal cue and
-% the stimulus as two conditions
-function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,mask,varargin)
+function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,mask,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
@@ -41,8 +28,8 @@ default.mt_0=8;
 
 default.bin_num=101; %number of endpoints between the starting and the end time points (bin number + 1)
 
-default.start_time=0;
-default.end_time=10;
+default.start_time=-5;
+default.end_time=5;
 
 %these isint functions are from the Princeton MVPA toolbox
 addParameter(p,'mt_res',default.mt_res,@isint);
@@ -59,19 +46,16 @@ time_to_TR1=linspace(p.Results.start_time,p.Results.end_time,p.Results.bin_num);
 cue_dr=2;
 stim_dr=4;
 
-%add a htag to the sub folder based on sub, run, and rand_v so that
-%multiple instances don't try to write and move the same file
-
-%subject,run,rand_version-specific output dir
-if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run)),'dir')
-    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run)]);
+%subject,run-specific output dir
+if ~exist(strcat(output,'/',sub,'_Run_',num2str(run)),'dir')
+    mkdir (output,[sub,'_Run_',num2str(run)]);
 end
-if ~exist(strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
-    mkdir (output,[sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
+if ~exist(strcat(output,'/',sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)),'dir')
+    mkdir (output,[sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold)]);
 end
 
-temp_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'/');
-ResMS_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
+temp_dir=strcat(output,'/',sub,'_Run_',num2str(run),'/');
+ResMS_dir=strcat(output,'/',sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
 %runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
@@ -115,7 +99,7 @@ matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t0=p.Results.mt_0;
 % sub_beh=[sub_beh(1:4),age,sub_beh(5:end)];
 
 %load behavioural file
-raw=readtable(strcat(behav_dir,'/',sub,'_onsets_RAND_v',num2str(rand_v),'.csv'));
+raw=readtable(strcat(behav_dir,'/',sub,'_onsets.csv'));
 current_run=raw.run==run;
 raw_run=raw(current_run,:);
 %extract the two relevant timing info (goal cue and stim)

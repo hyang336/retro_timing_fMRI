@@ -1,9 +1,6 @@
-%% plot some figures
-% In a perfect world every voxel will have a single min value in terms of
-% the ResMS as a function of time shifting. We may need to first filter out
-% the informative voxels (e.g. those having only one minimum and the peak
-% is tall), then using those voxels to select the correct timing.
-function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,mask,varargin)
+%% same thing as zoom_wrapper but without rand_v
+
+function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,mask,varargin)
 
 %% input parser
 % Optional input:
@@ -21,8 +18,8 @@ default.mt_0=8;
 
 default.bin_num=101; %number of endpoints between the starting and the end time points (bin number + 1)
 
-default.start_time=0;
-default.end_time=10;
+default.start_time=-5;
+default.end_time=5;
 
 %these isint functions are from the Princeton MVPA toolbox
 addParameter(p,'med_order',default.med_order,@isint);
@@ -65,9 +62,9 @@ zoom_in=1;
 while zoom_in
 
     %perform time-shifting GLM
-    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,rand_v,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
+    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
 
-    res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
+    res_dir=strcat(output,'/',sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject
     tile=linspace(s_time,e_time,bin_num);
     zoom_factor=10;% we are gonna sample n/zoom_factor number of points centered on the min
