@@ -1,6 +1,6 @@
 %% same thing as zoom_wrapper but without rand_v
 
-function minoffset=zoom_wrapper(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,mask,varargin)
+function minoffset=zoom_wrapper_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,mask,varargin)
 
 %% input parser
 % Optional input:
@@ -62,7 +62,7 @@ zoom_in=1;
 while zoom_in
 
     %perform time-shifting GLM
-    lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
+    lvl1_retro_timing_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);
 
     res_dir=strcat(output,'/',sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
     %bin_num=101;%number of time shift in total for each run for each subject

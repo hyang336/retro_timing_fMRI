@@ -1,6 +1,6 @@
 %% no rand_v, otherwise the same as lvl1_retro_timing
 
-function lvl1_retro_timing(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,mask,varargin)
+function lvl1_retro_timing_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,mask,varargin)
 
 %% step 1 generate alltrial regressor and noise regressor
 %set up time shifting bins
