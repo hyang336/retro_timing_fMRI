@@ -28,9 +28,9 @@ runs=runs{1};
 runs(cellfun('isempty',runs))=[];
 
 % initialize data saving table
-headers=['rec_error','run','sub','smoothed'];
-varTypes={'double','double','string','string'};
-comp_table=table('Size',[0,numel(headers)],'VariableNames',headers,'VariableTypes',varTypes);
+headers={'rec_error','run','sub','smoothed'};
+%varTypes={'double','double','string','string'};
+comp_table=cell2table(cell(0,numel(headers)),'VariableNames',headers);
 
 % Loop over subject, run and fold to generate figures and accuracy measure.
 % Need to detect whether a subject has that run through whether the output
@@ -40,8 +40,9 @@ for i=1:length(SSID)
     %GLM did over the entire search range
     for j=1:length(runs)
         %For now only looking at fold-1,detect whether a folder is empty
-        content=dir([data_dir,'/',SSID{i},'_',runs{j},'_ResMS_fold-1']);
-        files=content(~ismember({contents.name}, {'.', '..'}));
+        res_dir=[data_dir,'/',SSID{i},'_Run_',runs{j},'_ResMS_fold-1'];
+        content=dir(res_dir);
+        files=content(~ismember({content.name}, {'.', '..'}));
 
         if ~isempty(files)
 
@@ -79,13 +80,17 @@ for i=1:length(SSID)
             
             min_ind_smooth=find(volume_sum_res_smooth==min(volume_sum_res_smooth));
             
-            %save smoothed and nonsmoothed global min
-            rowdata1={tile(min_ind),runs{j},SSID{i},'no'};
-            rowdata2={tile(min_ind_smooth),runs{j},SSID{i},'yes'};
+            time_est=tile(min_ind);
+            time_est_smooth=tile(min_ind_smooth);
 
-            comp_table=[comp_table;rowdata1,rowdata2];
+            %save smoothed and nonsmoothed global min
+            rowdata1={time_est,runs{j},SSID{i},'no'};
+            rowdata2={time_est_smooth(1),runs{j},SSID{i},'yes'};%just take the 1st component since the smoothing may give min on multiple time points
+
+            comp_table=[comp_table;rowdata1;rowdata2];
         end
     end
+    disp(i)
 end
 
 %output as csv
