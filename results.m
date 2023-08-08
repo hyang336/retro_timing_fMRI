@@ -28,7 +28,7 @@ runs=runs{1};
 runs(cellfun('isempty',runs))=[];
 
 % initialize data saving table
-headers={'rec_error','run','sub','smoothed'};
+headers=['rec_error','run','sub','smoothed'];
 varTypes={'double','double','string','string'};
 comp_table=table('Size',[0,numel(headers)],'VariableNames',headers,'VariableTypes',varTypes);
 
