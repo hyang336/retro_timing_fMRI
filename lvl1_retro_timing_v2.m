@@ -23,8 +23,8 @@ function lvl1_retro_timing_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,outp
 p=inputParser;
 
 %microtime resolution and bin number for matlabbatch
-default.mt_res=16;
-default.mt_0=8;
+default.mt_res=20;
+default.mt_0=10;
 
 default.bin_num=101; %number of endpoints between the starting and the end time points (bin number + 1)
 
