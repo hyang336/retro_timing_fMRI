@@ -127,8 +127,14 @@ for i=1:length(SSID)
             end
             roi_tensor=squeeze(roi_tensor);
 
-            %high-pass filter to remove drift
-            roi_filtered=highpass(roi_tensor',hpass,0.5);
+            
+            %MATLAB 2017 on Sherlock does not have the highpass() function,
+            %so we have to design our own highpass filter. The results are
+            %not exactly the same but close enough. 
+            highpassFilter=designfilt('highpassfir','StopbandFrequency',0.001,'PassbandFrequency',0.05,'StopbandAttenuation',60,'PassbandRipple',1,'SampleRate',0.5,'DesignMethod','kaiserwin');
+            roi_filtered=filtfilt(highpassFilter,roi_tensor');%using zero-phase filter, does require more samples
+            %roi_filtered=highpass(roi_tensor',hpass,0.5);            
+
 
             %average across voxels, we do not calculate inter-voxel variance
             %because the errorbar needs to be across trials and later across
