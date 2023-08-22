@@ -143,16 +143,19 @@ for i=1:length(SSID)
 
             %Read in event onset file
             raw=readtable(strcat(behav_dir,'/',SSID{i},'_onsets.csv'));
-            current_run=raw.run==str2num(runs{i});
+            current_run=raw.run==str2num(runs{j});
             raw_run=raw(current_run,:);
 
             %calculate the onsets in TR, need to account for drift in time
             rough_tr_pg=round(raw_run.pregoal_onset/2);
+            rough_tr_cue=round(raw_run.goal_onset/2);
             %         ISI=diff(rough_tr_pg);
             %         %find where the drift becomes more than 1 sec (from round down to
             %         %round up), should only have 1
             %         drift_trial=find(ISI>10)+1;
-
+            
+            % Save mean time series and event onsets for each run
+            save([output_dir,'/',SSID{i},'_run-',runs{j},'_avg_ts_goal_onsets.mat'],"avg_ts","rough_tr_cue");
 
             %Epoch the average time series
             for trial=1:length(rough_tr_pg)
