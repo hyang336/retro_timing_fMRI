@@ -2,7 +2,7 @@
 median_order=8;%smoothing order, i.e. how many points around the value we use to calculate the median
 fold=1;
 rand_v=1;
-run=2;
+run=1;
 %res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 %res_dir=['C:\Users\haozi\Downloads\sub-029_Rand_1_Run_',num2str(run),'_ResMS_fold-',num2str(fold)];
 res_dir=['C:\Users\haozi\Downloads\sub-1071_Rand_1_Run_',num2str(run),'_ResMS_fold-',num2str(fold)];
