@@ -1,0 +1,20 @@
+#!/bin/bash
+
+usage(){
+echo "genjob_zoom <fmriprep_dir> <derivative_dir> <behav_dir> <sub_list> <run_list> <output_dir> <TR> <mask> <t_start> <t_end> > <joblist.txt>"
+}
+
+readarray -t subs < $4
+readarray -t runs < $5
+
+if [ "$#" -eq 10 ]; then
+    for sub in ${subs[@]}; do
+        for run in ${runs[@]}; do
+                echo 'matlab -nosplash -nodisplay -r "addpath(genpath('"'/home/users/hyang336/matlab_mod/'"')); addpath(genpath('"'/home/users/hyang336/retro_timing_fMRI/'"')); zoom_wrapper_v2('"'$1'"','"'$2'"','"'$3'"','"'$sub'"','"$run"','"'$6'"','"$7"','"'$8'"','"'start_time'"','"$9"','"'end_time'"','"${10}"'); exit;"'
+        done
+    done
+else
+usage
+exit 1
+fi
+

@@ -102,8 +102,13 @@ matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t0=p.Results.mt_0;
 raw=readtable(strcat(behav_dir,'/',sub,'_onsets.csv'));
 current_run=raw.run==run;
 raw_run=raw(current_run,:);
-%extract the two relevant timing info (goal cue and stim)
-substr.runevent=[raw_run.goal_onset,raw_run.stim_onset];
+%extract relevant timing info (goal cue, stim onset, resp, and respRT)
+substr.runevent=[num2cell(raw_run.goal_onset),num2cell(raw_run.stim_onset),raw_run.resp,num2cell(raw_run.respRT)];
+%separate key presses and calculate onsets, excluding no response
+substr.right_index_RT=substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4);%this is a cell
+substr.right_index_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'y')),2));%this is a mat
+substr.right_middle_RT=substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4);%this is a cell
+substr.right_middle_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'g')),2));%this is a mat
 
 %confounds
 conf_name=strcat(fmriprep_dir,'/',sub,'/func/',sub,'_','*run-01_desc-confound*.tsv');%use task{1} and run{1} since it's iteratively defined
@@ -226,6 +231,12 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'stim';
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
 %matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
+%2023-Dec: also add in button presses and parametrically modulate it by RT as in the Mumford paper, this wouldn't make much sense
+%if we are only looking at V1
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'right_index';
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).duration = 0;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).name = 'right_middle';
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).duration = 0;
 
 %gotta fill these fields too
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).tmod = 0;
@@ -234,6 +245,12 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 1;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 1;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod = struct('name', 'RInd_RT', 'param', cell2mat(substr.right_index_RT), 'poly', {});
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 1;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).tmod = 0;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).pmod = struct('name', 'RMid_RT', 'param', cell2mat(substr.right_middle_RT), 'poly', {});
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).orth = 1;
 
 % Changing the filter may not be very useful, although there may be a drift
 % in the BOLD signal overtime, it is unlikely to be related to the task
@@ -252,11 +269,15 @@ spm_jobman('initcfg');
 % GLM per run (depending on the time resolution of your choice), go grab a
 % coffee or rub one out
 for shift=1:length(time_to_TR1)
-    goal_onset=substr.runevent(:,1)-time_to_TR1(shift);
-    stim_onset=substr.runevent(:,2)-time_to_TR1(shift);
+    goal_onset=cell2mat(substr.runevent(:,1))-time_to_TR1(shift);
+    stim_onset=cell2mat(substr.runevent(:,2))-time_to_TR1(shift);
+    RInd_onset=substr.right_index_onsets-time_to_TR1(shift);
+    RMid_onset=substr.right_middle_onsets-time_to_TR1(shift);
+
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).onset = goal_onset;
     matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).onset = stim_onset;
-    
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).onset = RInd_onset;
+    matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).onset = RMid_onset;
     %run here to generate SPM.mat
     spm_jobman('run',matlabbatch(1:2));
 

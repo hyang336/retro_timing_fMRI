@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Specify the file containing the functions
+function_file=$1
+
+job_dir="/home/users/hyang336/jobs"
+# Read each line from the file and submit as a separate job
+while IFS= read -r function
+do
+    # Submit the job to Slurm with SBATCH directives and job command
+    sbatch <<EOF
+#!/bin/bash
+#SBATCH --job-name=fMRI_zoom       # Specify a name for the job
+#SBATCH --output=$job_dir/fMRI_zoom_%j.out      # Specify an output file
+#SBATCH --error=$job_dir/fMRI_zoom_%j.err       # Specify an error file
+#SBATCH --partition=awagner,hns,normal     # Specify the partition or queue
+#SBATCH --nodes=1                 # Specify the number of nodes
+#SBATCH --cpus-per-task=4         # Specify the number of CPUs per task
+#SBATCH --mem-per-cpu=16G                  # Specify the memory required
+#SBATCH --time=4:00:00            # Specify the maximum time limit
+
+ml purge
+ml biology spm
+
+$function                           # Run the function
+EOF
+sleep 3
+done < "$function_file"

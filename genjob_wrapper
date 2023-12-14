@@ -1,0 +1,4 @@
+#!/bin/bash
+bash genjob_zoom /oak/stanford/groups/awagner/yaams-haams/fmri/yaams/bids_trimmed/derivatives/fmriprep-23.0.1 /oak/stanford/groups/awagner/yaams-haams/fmri/yaams/bids_trimmed/derivatives/fmriprep-23.0.1 /oak/stanford/groups/awagner/yaams-haams/fmri/yaams/onset_files /home/users/hyang336/retro_timing_fMRI/sub_list_yaam /home/users/hyang336/retro_timing_fMRI/run_list /scratch/users/hyang336/retro_timing_fMRI_data/yaam 2 whole -5 5 > joblist_zoomwrapper_yaam.txt
+
+bash genjob_zoom /oak/stanford/groups/awagner/yaams-haams/fmri/haams/bids_trimmed/derivatives/fmriprep-23.0.1 /oak/stanford/groups/awagner/yaams-haams/fmri/haams/bids_trimmed/derivatives/fmriprep-23.0.1 /oak/stanford/groups/awagner/yaams-haams/fmri/haams/onset_files /home/users/hyang336/retro_timing_fMRI/sub_list_haam /home/users/hyang336/retro_timing_fMRI/run_list /scratch/users/hyang336/retro_timing_fMRI_data/haam 2 whole -5 5 > joblist_zoomwrapper_haam.txt
