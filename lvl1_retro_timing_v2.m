@@ -245,11 +245,17 @@ matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).orth = 1;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).tmod = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).orth = 1;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod = struct('name', 'RInd_RT', 'param', cell2mat(substr.right_index_RT), 'poly', {});
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 1;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).tmod = 0;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).pmod = struct('name', 'RMid_RT', 'param', cell2mat(substr.right_middle_RT), 'poly', {});
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).orth = 1;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).tmod = 0;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod = struct('name', 'RInd_RT', 'param', cell2mat(substr.right_index_RT), 'poly', {});
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).orth = 1;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).tmod = 0;
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).pmod = struct('name', 'RMid_RT', 'param', cell2mat(substr.right_middle_RT), 'poly', {});
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).pmod = struct('name', {}, 'param', {}, 'poly', {});
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(4).orth = 1;
 
 % Changing the filter may not be very useful, although there may be a drift
