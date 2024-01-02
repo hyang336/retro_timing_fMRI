@@ -13,8 +13,10 @@ median_order=8;
 
 
 %ROI mask
-brod_header=spm_vol(mask);
-brod=spm_read_vols(brod_header);
+if ~strcmp(mask,'whole')
+    brod_header=spm_vol(mask);
+    brod=spm_read_vols(brod_header);
+end
 
 %read in ss list and run list
 ss_open=fopen(ss_list,'r');
@@ -47,16 +49,27 @@ for i=1:length(SSID)
         if ~isempty(files)
 
             volume_sum_res=[];
-
-            v1ind=find(brod==17);
+            if ~strcmp(mask,'whole')
+                ROI=find(brod==17);
+            else
+                ROI='whole';
+            end
             for k=1:length(tile)
                 tile_str{k}=sprintf('%g', tile(k));
                 res_header=spm_vol([res_dir,'/ResMS',tile_str{k},'.nii']);
                 res_vol=spm_read_vols(res_header);
-                assert(all(size(res_vol)==size(brod)));%make sure the residule volumne and the ROI file has the same size otherwise the linear index will be wrong
-                V1res=res_vol(v1ind);
-                volume_sum_res(k)=sum(sum(sum(V1res,'omitnan'),'omitnan'),'omitnan');
+                
+                if ~strcmp(ROI,'whole')
+                    assert(all(size(res_vol)==size(brod)));%make sure the residule volumne and the ROI file has the same size otherwise the linear index will be wrong
+                    ROIres=res_vol(ROI);
+                else
+                    ROIres=res_vol;
+                end
+                volume_sum_res(k)=sum(sum(sum(ROIres,'omitnan'),'omitnan'),'omitnan');
             end
+            
+            %plot and save the ROI residual for the current run
+            
 
             %global min
             min_ind=find(volume_sum_res==min(volume_sum_res));

@@ -1,11 +1,11 @@
 %% The offset in the res plot could be caused by the fact that they waited for a t-trigger to start a trial, which could accumulated at max 420 ms lag through a run, which will make the regressors inaccurate in the GLM
 median_order=8;%smoothing order, i.e. how many points around the value we use to calculate the median
 fold=1;
-rand_v=1;
-run=1;
+%rand_v=1;
+run=6;
 %res_dir=strcat(output,'/',sub,'_Rand_',num2str(rand_v),'_Run_',num2str(run),'_ResMS_fold-',num2str(fold));
 %res_dir=['C:\Users\haozi\Downloads\sub-029_Rand_1_Run_',num2str(run),'_ResMS_fold-',num2str(fold)];
-res_dir=['C:\Users\haozi\Downloads\sub-1071_Rand_1_Run_',num2str(run),'_ResMS_fold-',num2str(fold)];
+res_dir=['C:\Users\haozi\Downloads\sub-022_Run_',num2str(run),'_ResMS_fold-',num2str(fold)];
 %res_dir='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\lvl1_retro_timing\sub-029_Rand_1_Run_1_ResMS_fold-1';
 mask='C:\Users\haozi\OneDrive\Desktop\Postdoc\Wagner\retro_timing_fMRI_data\rbrodmann.nii';
 s_time=-5;
