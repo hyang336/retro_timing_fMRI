@@ -60,6 +60,12 @@ end
 fold=1;
 zoom_in=1;
 while zoom_in
+    % print subject ID, run number, fold for easier debugging
+    disp('*****************')
+    disp(['subject ID: ',sub])
+    disp(['run number: ',num2str(run)])
+    disp(['current fold: ',num2str(fold)])
+    disp('*****************')
 
     %perform time-shifting GLM
     lvl1_retro_timing_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,output,TR,fold,sub_wbrain,'bin_num',bin_num,'start_time',s_time,'end_time',e_time,'mt_res',mt_res,'mt_0',mt_0);

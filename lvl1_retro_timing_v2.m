@@ -106,9 +106,11 @@ raw_run=raw(current_run,:);
 substr.runevent=[num2cell(raw_run.goal_onset),num2cell(raw_run.stim_onset),raw_run.resp,num2cell(raw_run.respRT)];
 %separate key presses and calculate onsets, excluding no response
 substr.right_index_RT=substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4);%this is a cell
-substr.right_index_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'y')),2));%this is a mat
+substr.right_index_onsets=cellfun(@str2double,substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4))+cell2mat(substr.runevent(find(strcmp(substr.runevent(:,3),'y')),2));%this is a mat
+%substr.right_index_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'y')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'y')),2));%this is a mat
 substr.right_middle_RT=substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4);%this is a cell
-substr.right_middle_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'g')),2));%this is a mat
+substr.right_middle_onsets=cellfun(@str2double,substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4))+cell2mat(substr.runevent(find(strcmp(substr.runevent(:,3),'g')),2));%this is a mat
+%substr.right_middle_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'g')),2));%this is a mat
 
 %confounds
 conf_name=strcat(fmriprep_dir,'/',sub,'/func/',sub,'_','*run-01_desc-confound*.tsv');%use task{1} and run{1} since it's iteratively defined
