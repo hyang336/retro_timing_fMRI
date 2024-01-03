@@ -113,7 +113,7 @@ substr.right_middle_onsets=cellfun(@str2double,substr.runevent(find(strcmp(subst
 %substr.right_middle_onsets=cellfun(@(x,y) x+y,substr.runevent(find(strcmp(substr.runevent(:,3),'g')),4),substr.runevent(find(strcmp(substr.runevent(:,3),'g')),2));%this is a mat
 
 %confounds
-conf_name=strcat(fmriprep_dir,'/',sub,'/func/',sub,'_','*run-01_desc-confound*.tsv');%use task{1} and run{1} since it's iteratively defined
+conf_name=strcat(fmriprep_dir,'/',sub,'/func/',sub,'_',['*run-0',num2str(run),'_desc-confound*.tsv']);%use task{1} and run{1} since it's iteratively defined
 confstruct=dir(conf_name);
 conffile=strcat(confstruct.folder,'/',confstruct.name);
 substr.runconf=tdfread(conffile,'tab');
