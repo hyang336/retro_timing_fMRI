@@ -307,29 +307,34 @@ for shift=1:length(time_to_TR1)
     [~,stim_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'stim*bf(1)'));
     [~,rinx_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'right_index*bf(1)'));
     [~,rmid_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'right_middle*bf(1)'));
+    [~,constant_col]=find(contains(spmmat.SPM.xX.name(1,:),'constant'));
 
     %goal contrast
     convec_goal=convec;
     convec_goal(1,goal_main_col)=1;
-    matlabbatch{3}.spm.stats.con.consess{1}.tcon.name = 'goal_main';
+    convec_goal(1,constant_col)=-1;
+    matlabbatch{3}.spm.stats.con.consess{1}.tcon.name = 'goal_vs_const';
     matlabbatch{3}.spm.stats.con.consess{1}.tcon.weights = convec_goal;
 
     %stim contrast
     convec_stim=convec;
     convec_stim(1,stim_main_col)=1;
-    matlabbatch{3}.spm.stats.con.consess{2}.tcon.name = 'stim_main';
+    convec_stim(1,constant_col)=-1;
+    matlabbatch{3}.spm.stats.con.consess{2}.tcon.name = 'stim_vs_const';
     matlabbatch{3}.spm.stats.con.consess{2}.tcon.weights = convec_stim;
 
     %right index contrast
     convec_rind=convec;
     convec_rind(1,rinx_main_col)=1;
-    matlabbatch{3}.spm.stats.con.consess{3}.tcon.name = 'rind_main';
+    convec_rind(1,constant_col)=-1;
+    matlabbatch{3}.spm.stats.con.consess{3}.tcon.name = 'rind_vs_const';
     matlabbatch{3}.spm.stats.con.consess{3}.tcon.weights = convec_rind;
 
     %right middle contrast
     convec_rmid=convec;
     convec_rmid(1,rmid_main_col)=1;
-    matlabbatch{3}.spm.stats.con.consess{4}.tcon.name = 'rmid_main';
+    convec_rmid(1,constant_col)=-1;
+    matlabbatch{3}.spm.stats.con.consess{4}.tcon.name = 'rmid_vs_const';
     matlabbatch{3}.spm.stats.con.consess{4}.tcon.weights = convec_rmid;
     
     %run the job, this will update the SPM.mat
@@ -343,19 +348,19 @@ for shift=1:length(time_to_TR1)
 
     % and move each of the t-maps
     t_goal=[temp_dir,'/spmT_0001.nii'];
-    newname=['T_goal',num2str(time_to_TR1(shift))];
+    newname=['T_goalVSconst',num2str(time_to_TR1(shift))];
     movefile(t_goal,[ResMS_dir,'/',newname,'.nii']);
 
     t_stim=[temp_dir,'/spmT_0002.nii'];
-    newname=['T_stim',num2str(time_to_TR1(shift))];
+    newname=['T_stimVSconst',num2str(time_to_TR1(shift))];
     movefile(t_stim,[ResMS_dir,'/',newname,'.nii']);
 
     t_rind=[temp_dir,'/spmT_0003.nii'];
-    newname=['T_rind',num2str(time_to_TR1(shift))];
+    newname=['T_rindVSconst',num2str(time_to_TR1(shift))];
     movefile(t_rind,[ResMS_dir,'/',newname,'.nii']);
 
     t_rmid=[temp_dir,'/spmT_0004.nii'];
-    newname=['T_rmid',num2str(time_to_TR1(shift))];
+    newname=['T_rmidVSconst',num2str(time_to_TR1(shift))];
     movefile(t_rmid,[ResMS_dir,'/',newname,'.nii']);
 
     %delete the SPM after we got both the residual and t-maps moved
