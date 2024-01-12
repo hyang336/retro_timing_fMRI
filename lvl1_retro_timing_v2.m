@@ -228,11 +228,11 @@ matlabbatch{1}.spm.stats.fmri_spec.mask = {maskfile};%specify explicit mask, usi
 
 %condition names and boxcar duration
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).name = 'goalcue';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
-%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = cue_dr;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(1).duration = 0;
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).name = 'stim';
-matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
-%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
+%matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = stim_dr;
+matlabbatch{1}.spm.stats.fmri_spec.sess.cond(2).duration = 0;
 %2023-Dec: also add in button presses and parametrically modulate it by RT as in the Mumford paper, this wouldn't make much sense
 %if we are only looking at V1
 matlabbatch{1}.spm.stats.fmri_spec.sess.cond(3).name = 'right_index';
