@@ -17,9 +17,9 @@ function lvl1_retro_timing_v2(fmriprep_dir,derivative_dir,behav_dir,sub,run,outp
 
 %% input parser
 % Optional input:
-% 'bin_num': 
-% 'start_time': 
-% 'end_time': 
+% 'bin_num':
+% 'start_time':
+% 'end_time':
 p=inputParser;
 
 %microtime resolution and bin number for matlabbatch
@@ -289,12 +289,76 @@ for shift=1:length(time_to_TR1)
     %run here to generate SPM.mat
     spm_jobman('run',matlabbatch(1:2));
 
+    %% setting up the contrasts and results/inference jobs
+    % load SPM.mat
+    spmmat=load(strcat(temp_dir,'SPM.mat'));
+    %setup simple main effect contrasts for the four conditions (two
+    %onsets, and two button presses), really just the same as the beta
+    %because the contrast vectors are all just 1. This should also generate
+    %the corresponding t-maps (unthresholded).
+
+    matlabbatch{3}.spm.stats.con.spmmat = {strcat(temp_dir,'SPM.mat')};
+
+    %use spmmat.SPM.xX.name header to find the
+    %right columns
+    convec=zeros(1,length(spmmat.SPM.xX.name(1,:)));
+
+    [~,goal_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'goalcue*bf(1)'));
+    [~,stim_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'stim*bf(1)'));
+    [~,rinx_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'right_index*bf(1)'));
+    [~,rmid_main_col]=find(contains(spmmat.SPM.xX.name(1,:),'right_middle*bf(1)'));
+
+    %goal contrast
+    convec_goal=convec;
+    convec_goal(1,goal_main_col)=1;
+    matlabbatch{3}.spm.stats.con.consess{1}.tcon.name = 'goal_main';
+    matlabbatch{3}.spm.stats.con.consess{1}.tcon.weights = convec_goal;
+
+    %stim contrast
+    convec_stim=convec;
+    convec_stim(1,stim_main_col)=1;
+    matlabbatch{3}.spm.stats.con.consess{2}.tcon.name = 'stim_main';
+    matlabbatch{3}.spm.stats.con.consess{2}.tcon.weights = convec_stim;
+
+    %right index contrast
+    convec_rind=convec;
+    convec_rind(1,rinx_main_col)=1;
+    matlabbatch{3}.spm.stats.con.consess{3}.tcon.name = 'rind_main';
+    matlabbatch{3}.spm.stats.con.consess{3}.tcon.weights = convec_rind;
+
+    %right middle contrast
+    convec_rmid=convec;
+    convec_rmid(1,rmid_main_col)=1;
+    matlabbatch{3}.spm.stats.con.consess{4}.tcon.name = 'rmid_main';
+    matlabbatch{3}.spm.stats.con.consess{4}.tcon.weights = convec_rmid;
+    
+    %run the job, this will update the SPM.mat
+    spm_jobman('run',matlabbatch(3));
+
     %rename ResMS.nii, which contains the mean square of the residual time
     %series after fitting the GLM, so it doesn't get overwritten
     resms=[temp_dir,'/ResMS.nii'];
     newname=['ResMS',num2str(time_to_TR1(shift))];
-    movefile([temp_dir,'/ResMS.nii'],[ResMS_dir,'/',newname,'.nii']);
-    
+    movefile(resms,[ResMS_dir,'/',newname,'.nii']);
+
+    % and move each of the t-maps
+    t_goal=[temp_dir,'/spmT_0001.nii'];
+    newname=['T_goal',num2str(time_to_TR1(shift))];
+    movefile(t_goal,[ResMS_dir,'/',newname,'.nii']);
+
+    t_stim=[temp_dir,'/spmT_0002.nii'];
+    newname=['T_stim',num2str(time_to_TR1(shift))];
+    movefile(t_stim,[ResMS_dir,'/',newname,'.nii']);
+
+    t_rind=[temp_dir,'/spmT_0003.nii'];
+    newname=['T_rind',num2str(time_to_TR1(shift))];
+    movefile(t_rind,[ResMS_dir,'/',newname,'.nii']);
+
+    t_rmid=[temp_dir,'/spmT_0004.nii'];
+    newname=['T_rmid',num2str(time_to_TR1(shift))];
+    movefile(t_rmid,[ResMS_dir,'/',newname,'.nii']);
+
+    %delete the SPM after we got both the residual and t-maps moved
     delete([temp_dir,'/SPM.mat']);
 end
 

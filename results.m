@@ -30,7 +30,7 @@ runs=runs{1};
 runs(cellfun('isempty',runs))=[];
 
 % initialize data saving table
-headers={'rec_error','run','sub','smoothed'};
+headers={'rec_error','run','sub','MetricType'};
 %varTypes={'double','double','string','string'};
 comp_table=cell2table(cell(0,numel(headers)),'VariableNames',headers);
 
@@ -45,10 +45,11 @@ for i=1:length(SSID)
         res_dir=[data_dir,'/',SSID{i},'_Run_',runs{j},'_ResMS_fold-1'];
         content=dir(res_dir);
         files=content(~ismember({content.name}, {'.', '..'}));
-
+        
         if ~isempty(files)
 
             volume_sum_res=[];
+            volume_std_res=[];
             if ~strcmp(mask,'whole')
                 ROI=find(brod==17);
             else
@@ -66,6 +67,7 @@ for i=1:length(SSID)
                     ROIres=res_vol;
                 end
                 volume_sum_res(k)=sum(sum(sum(ROIres,'omitnan'),'omitnan'),'omitnan');
+                volume_std_res(k)=std(ROIres,1,'all','omitnan');
             end
             
             %plot and save the ROI residual for the current run
@@ -73,6 +75,7 @@ for i=1:length(SSID)
 
             %global min
             min_ind=find(volume_sum_res==min(volume_sum_res));
+            min_ind_std=find(volume_std_res==min(volume_std_res));
 
             %right and left of the min, need to handle the cases where left index
             %may be <0 and right index may be outside the range
@@ -95,18 +98,20 @@ for i=1:length(SSID)
             
             time_est=tile(min_ind);
             time_est_smooth=tile(min_ind_smooth);
+            time_est_std=tile(min_ind_std);
 
             %save smoothed and nonsmoothed global min
-            rowdata1={time_est,runs{j},SSID{i},'no'};
-            rowdata2={time_est_smooth(1),runs{j},SSID{i},'yes'};%just take the 1st component since the smoothing may give min on multiple time points
+            rowdata1={time_est,runs{j},SSID{i},'VolSum'};
+            rowdata2={time_est_smooth(1),runs{j},SSID{i},'VolSum_smooth'};%just take the 1st component since the smoothing may give min on multiple time points
+            rowdata3={time_est_std,runs{j},SSID{i},'VolStd'};
 
-            comp_table=[comp_table;rowdata1;rowdata2];
+            comp_table=[comp_table;rowdata1;rowdata2;rowdata3];
         end
     end
     disp(i)
 end
 
 %output as csv
-writetable(comp_table,[output_dir,'/comp_table.csv']);
+writetable(comp_table,[output_dir,'/comp_table.csv'],"WriteMode","overwrite");
 
 end
