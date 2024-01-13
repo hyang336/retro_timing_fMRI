@@ -60,50 +60,83 @@ for i=1:length(SSID)
                 res_header=spm_vol([res_dir,'/ResMS',tile_str{k},'.nii']);
                 res_vol=spm_read_vols(res_header);
                 
+                tgoal_header=spm_vol([res_dir,'/T_goalVSconst',tile_str{k},'.nii']);
+                tgoal_vol=spm_read_vols(tgoal_header);
+                tstim_header=spm_vol([res_dir,'/T_stimVSconst',tile_str{k},'.nii']);
+                tstim_vol=spm_read_vols(tstim_header);
+                trind_header=spm_vol([res_dir,'/T_rindVSconst',tile_str{k},'.nii']);
+                trind_vol=spm_read_vols(trind_header);
+                trmid_header=spm_vol([res_dir,'/T_rmidVSconst',tile_str{k},'.nii']);
+                trmid_vol=spm_read_vols(trmid_header);
+
                 if ~strcmp(ROI,'whole')
                     assert(all(size(res_vol)==size(brod)));%make sure the residule volumne and the ROI file has the same size otherwise the linear index will be wrong
                     ROIres=res_vol(ROI);
+
+                    assert(all(size(tgoal_vol)==size(brod)));
+                    ROItgoal=tgoal_vol(ROI);
+
+                    assert(all(size(tstim_vol)==size(brod)));
+                    ROItstim=tstim_vol(ROI);
+
+                    assert(all(size(trind_vol)==size(brod)));
+                    ROItrind=trind_vol(ROI);
+
+                    assert(all(size(trmid_vol)==size(brod)));
+                    ROItrmid=trmid_vol(ROI);
                 else
                     ROIres=res_vol;
+                    ROItgoal=tgoal_vol;
+                    ROItstim=tstim_vol;
+                    ROItrind=trind_vol;
+                    ROItrmid=trmid_vol;
                 end
                 volume_sum_res(k)=sum(sum(sum(ROIres,'omitnan'),'omitnan'),'omitnan');
                 volume_std_res(k)=std(ROIres,1,'all','omitnan');
+
+                volume_sum_tgoal(k)=sum(sum(sum(ROItgoal,'omitnan'),'omitnan'),'omitnan');
+                volume_std_tgoal(k)=std(ROItgoal,1,'all','omitnan');
+
+                volume_sum_tstim(k)=sum(sum(sum(ROItstim,'omitnan'),'omitnan'),'omitnan');
+                volume_std_tstim(k)=std(ROItstim,1,'all','omitnan');
+
+                volume_sum_trind(k)=sum(sum(sum(ROItrind,'omitnan'),'omitnan'),'omitnan');
+                volume_std_trind(k)=std(ROItrind,1,'all','omitnan');
+
+                volume_sum_trmid(k)=sum(sum(sum(ROItrmid,'omitnan'),'omitnan'),'omitnan');
+                volume_std_trmid(k)=std(ROItrmid,1,'all','omitnan');
             end
-            
+            %%
             %plot and save the ROI residual for the current run
             
 
             %global min
-            min_ind=find(volume_sum_res==min(volume_sum_res));
-            min_ind_std=find(volume_std_res==min(volume_std_res));
+            res_min_ind=find(volume_sum_res==min(volume_sum_res));
+            res_min_std_ind=find(volume_std_res==min(volume_std_res));
 
-            %right and left of the min, need to handle the cases where left index
-            %may be <0 and right index may be outside the range
-            left_df=diff(volume_sum_res(max(1,min_ind-num_left):min_ind));
-            right_df=diff(volume_sum_res(min_ind:min(length(volume_sum_res),min_ind+num_right)));
-            left_mono_dec=all(left_df<0);
-            right_mono_inc=all(right_df>0);
+            %check if the min or max is a locally smooth peak
+            is_smooth_peak=SmoothPeakDetect(volume_sum_res,'min',res_min_ind,num_left);
 
 
-            %if not monotonic, smooth
-            if ~left_mono_dec||~right_mono_inc
-                volume_sum_res_smooth=medfilt1(volume_sum_res,median_order,'omitnan','truncate');
- 
-            else
+            %if not a smooth peak, smooth
+            if is_smooth_peak
                 volume_sum_res_smooth=volume_sum_res;
+                
+            else
+                volume_sum_res_smooth=medfilt1(volume_sum_res,median_order,'omitnan','truncate');
                
             end
             
-            min_ind_smooth=find(volume_sum_res_smooth==min(volume_sum_res_smooth));
+            res_min_ind_smooth=find(volume_sum_res_smooth==min(volume_sum_res_smooth));
             
-            time_est=tile(min_ind);
-            time_est_smooth=tile(min_ind_smooth);
-            time_est_std=tile(min_ind_std);
+            time_est_res=tile(res_min_ind);
+            time_est_smooth_res=tile(res_min_ind_smooth);
+            time_est_res_std=tile(res_min_std_ind);
 
             %save smoothed and nonsmoothed global min
-            rowdata1={time_est,runs{j},SSID{i},'VolSum'};
-            rowdata2={time_est_smooth(1),runs{j},SSID{i},'VolSum_smooth'};%just take the 1st component since the smoothing may give min on multiple time points
-            rowdata3={time_est_std,runs{j},SSID{i},'VolStd'};
+            rowdata1={time_est_res,runs{j},SSID{i},'VolResSum'};
+            rowdata2={time_est_smooth_res(1),runs{j},SSID{i},'VolResSum_smooth'};%just take the 1st component since the smoothing may give min on multiple time points
+            rowdata3={time_est_res_std,runs{j},SSID{i},'VolResStd'};
 
             comp_table=[comp_table;rowdata1;rowdata2;rowdata3];
         end
