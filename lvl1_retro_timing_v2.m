@@ -100,6 +100,13 @@ matlabbatch{1, 1}.spm.stats.fmri_spec.timing.fmri_t0=p.Results.mt_0;
 
 %load behavioural file
 raw=readtable(strcat(behav_dir,'/',sub,'_onsets.csv'));
+% In older version of MATLAB, columns with non-numerical data will be converted to cell, which will fuck up the later code
+% Remove noresp trials and convert RT to double
+if strcmp(class(raw.respRT),'cell')
+    noresp_trials=find(strcmp(raw.resp,'None'));
+    raw(noresp_trials,:)=[];
+    raw.respRT=str2double(raw.respRT);
+end
 current_run=raw.run==run;
 raw_run=raw(current_run,:);
 %extract relevant timing info (goal cue, stim onset, resp, and respRT)
