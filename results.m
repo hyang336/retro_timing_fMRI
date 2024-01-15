@@ -96,19 +96,21 @@ for i=1:length(SSID)
                     ROItrmid=trmid_vol;
                 end
                 volume_mean_res(k)=(sum(sum(sum(ROIres,'omitnan'),'omitnan'),'omitnan'))/sum(sum(sum(~isnan(ROIres))));
-                volume_se_res(k)=std(ROIres,1,'all','omitnan')/sqrt(sum(sum(sum(~isnan(ROIres)))));
+                volume_se_res(k)=std(reshape(ROIres,1,[]),1,'omitnan')/sqrt(sum(sum(sum(~isnan(ROIres)))));
 
                 volume_mean_tgoal(k)=sum(sum(sum(ROItgoal,'omitnan'),'omitnan'),'omitnan')/sum(sum(sum(~isnan(ROItgoal))));
-                volume_se_tgoal(k)=std(ROItgoal,1,'all','omitnan')/sqrt(sum(sum(sum(~isnan(ROItgoal)))));
+                volume_se_tgoal(k)=std(reshape(ROItgoal,1,[]),1,'omitnan')/sqrt(sum(sum(sum(~isnan(ROItgoal)))));
 
                 volume_mean_tstim(k)=sum(sum(sum(ROItstim,'omitnan'),'omitnan'),'omitnan')/sum(sum(sum(~isnan(ROItstim))));
-                volume_se_tstim(k)=std(ROItstim,1,'all','omitnan')/sqrt(sum(sum(sum(~isnan(ROItstim)))));
+                volume_se_tstim(k)=std(reshape(ROItstim,1,[]),1,'omitnan')/sqrt(sum(sum(sum(~isnan(ROItstim)))));
 
                 volume_mean_trind(k)=sum(sum(sum(ROItrind,'omitnan'),'omitnan'),'omitnan')/sum(sum(sum(~isnan(ROItrind))));
-                volume_se_trind(k)=std(ROItrind,1,'all','omitnan')/sqrt(sum(sum(sum(~isnan(ROItrind)))));
+                volume_se_trind(k)=std(reshape(ROItrind,1,[]),1,'omitnan')/sqrt(sum(sum(sum(~isnan(ROItrind)))));
 
                 volume_mean_trmid(k)=sum(sum(sum(ROItrmid,'omitnan'),'omitnan'),'omitnan')/sum(sum(sum(~isnan(ROItrmid))));
-                volume_se_trmid(k)=std(ROItrmid,1,'all','omitnan')/sqrt(sum(sum(sum(~isnan(ROItrmid)))));
+                volume_se_trmid(k)=std(reshape(ROItrmid,1,[]),1,'omitnan')/sqrt(sum(sum(sum(~isnan(ROItrmid)))));
+                
+                disp(k)
             end
             %%
             %plot and save the ROI residual for the current run            
@@ -214,6 +216,6 @@ for i=1:length(SSID)
 end
 
 %output as csv
-writetable(comp_table,[output_dir,'/comp_table.csv'],"WriteMode","overwrite");
+writetable(comp_table,[output_dir,'/comp_table.csv']);%,"WriteMode","overwrite");
 
 end
