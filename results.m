@@ -11,6 +11,10 @@ num_left=floor(((bin_num-1)/zoom_factor)/2);
 num_right=num_left;
 median_order=8;
 
+%make output folder if nonexist
+if ~exist(output_dir,'dir')
+    mkdir(output_dir);
+end
 
 %ROI mask
 if ~strcmp(mask,'whole')
@@ -144,7 +148,7 @@ for i=1:length(SSID)
     disp(i)
 end
 
-%output as csv
+%output
 writetable(comp_table,[output_dir,'/comp_table.csv'],"WriteMode","overwrite");
 
 end
