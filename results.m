@@ -216,6 +216,7 @@ for i=1:length(SSID)
 end
 
 %output as csv
+save([output_dir,'/comp_table.mat'],'comp_table');
 writetable(comp_table,[output_dir,'/comp_table.csv']);%,"WriteMode","overwrite");
 
 end
