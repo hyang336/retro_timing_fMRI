@@ -48,7 +48,7 @@ e_time=p.Results.end_time;
 %specified region (assuming the specified mask is Brodmann coded).
 
 %Define fmriprep whole-brain subject mask in MNI
-sub_wbrain=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-MNI152NLin2009cAsym_res-2_desc-brain_mask.nii.gz');
+sub_wbrain=strcat(fmriprep_dir,'/',sub,'/anat/',sub,'_space-T1w_desc-brain_mask.nii.gz');
 
 %no longer load it in at evaluation stage, but pass it as an explicit mask
 %in the model estimation stage

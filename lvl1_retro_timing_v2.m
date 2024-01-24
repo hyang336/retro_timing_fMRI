@@ -59,7 +59,7 @@ ResMS_dir=strcat(output,'/',sub,'_Run_',num2str(run),'_ResMS_fold-',num2str(fold
 
 %% Had to figure out the timing run-by-run because the delay varied across runs
 %runkey=fullfile(strcat(fmriprep_dir,'/',sub,'/func/'),'*GoalAttnMemTest*run-01_space-T1w*preproc_bold.nii.gz');
-runkey=fullfile(strcat(derivative_dir,'/',sub,'/func/'),strcat('*GoalAttnMemTest*run-0',num2str(run),'_space-MNI*preproc_bold.nii.gz'));
+runkey=fullfile(strcat(derivative_dir,'/',sub,'/func/'),strcat('*GoalAttnMemTest*run-0',num2str(run),'_space-T1w*preproc_bold.nii.gz'));
 
 runfile=dir(runkey);
 substr=struct();%put everythin in a struct for easy organize
