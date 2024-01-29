@@ -28,36 +28,35 @@ L_M1_key=[k for k,v in label_dict.items() if v[0]=='L_4_ROI'][0]
 # MMP_brainmodel_axis=MMP_header_axes[1]
 L_M1_grayord=np.where(label_codes.astype(int)==L_M1_key)[0]#according to Glasser et al. (2016) fig.1, these indices on the L cortex do not need to be modified.
 
-#
+#find all triangles on surface mesh that contain any one of the ROI vertices
+triangle_mask_vert_logic=np.isin(L_surf_triangles,L_M1_grayord)
+triangle_mask_3vert=np.all(triangle_mask_vert_logic,axis=1)
+triangle_L_M1=L_surf_triangles[triangle_mask_3vert]
 
+#check if all triangles have at least one other triangle that shares an edge with it (i.e. the ROI mesh is continuous)
+share_edge=np.full(triangle_L_M1.shape[0],False)
+triangles, _ = triangle_L_M1.shape
+for i in range(triangles):
+    for j in range(triangles):
+        if i!=j:
+            if len(np.intersect1d(triangle_L_M1[i],triangle_L_M1[j]))==2:
+                share_edge[i]=True
 
-##!! would be too memory-intensive to check which triangle is detached, need to come up with a general solution that can handle any triangles
-# #detect triangles with only 1 (:.:) or 0 (:. :.) shared vertices
-# triangles, _ = L_surf_triangles.shape
-# results_rows_1shared = []
-# results_rows_0shared = []
+#if there are triangles that doesn't share edge with other triangles, check if they at least share vertex
+dangle_triangles=np.where(share_edge==False)
+share_vertex=np.full(triangle_L_M1.shape[0],True)
+if len(dangle_triangles[0])!=0:
+    for i in range(len(dangle_triangles[0])):
+        dangle_triangle_idx=dangle_triangles[0][i]
+        for j in range(triangles):
+            if dangle_triangle_idx!=j:#dangle_triangle is a tuple with its 1st element being a numpy array of indices of triangles
+                if len(np.intersect1d(triangle_L_M1[dangle_triangle_idx],triangle_L_M1[j]))==1:
+                    share_vertex[dangle_triangle_idx]=False
 
-# #use numpy array broadcasting to do pairwise comparisons to figure out which elements are the same
-# #if you don't understand this, run:
-# #arr=np.array([[1,2,3],[1,4,5],[1,2,7],[10,9,6]])
-# #arr.shape
-# #arr[None,:,:]
-# #arr[:,None,:]
-# #arr[:,:,None]
-# #arr[:,None,:]==arr[None,:,:]
+#if the list of triangles that don't share edges is not equal to the list of triangles sharing vertex, then these triangles are orphans, remove these triangles from the ROI
+orphan_triangles=np.where(share_edge!=share_vertex)
+triangle_L_M1_cont=np.delete(triangle_L_M1,orphan_triangles[0],axis=0)
 
-# #symmetric matrix counting the number of overlapping elements across row pairs, this matrix is huge and you probably need tenth of GB memory to fit it in.
-# vert_1shared=np.sum(L_surf_triangles[:,None,:]==L_surf_triangles[None,:,:],axis=-1)#each element (i,j) is the number of overlapping element between row i and row j in the original array
+#since the ROI is defined on the group (template) surface space, we do not need to account for different real-world position of the vertices
 
-
-# for i in range(triangles):
-#     share_vert_count=0
-#     for j in range(triangles):
-#         if i!=j: #don't compare a triangle with itself
-#             share_vert_count += len(np.intersect1d(L_surf_triangles[i],L_surf_triangles[j]))
-#     if share_vert_count == 0:
-#         results_rows_0shared.append(i)
-#     elif share_vert_count ==1:
-#         results_rows_1shared.append(i)
-
-#
+### Converting triangular mesh to matrix seems to necessitate interpolation or rasterization, both will cause info loss. So the alternative strategy is to apply conv directly on the mesh, via something like graph neuralnet
