@@ -37,9 +37,9 @@ for (i in seq_along(subs)){
     run_extracted <- regmatches(BOLD_files_V1[j], run_match)
     run_extracted=unlist(run_extracted)
     temp=read_csv(BOLD_files_V1[j],col_names = FALSE)
-    if (length(unlist(temp))<215){
+    if (length(unlist(temp))<255){
       temp<-temp%>%
-        bind_rows(tibble(X1=rep(NA,215-length(unlist(temp)))))
+        bind_rows(tibble(X1=rep(NA,255-length(unlist(temp)))))
     }
     temp=temp%>%
       rename(!!run_extracted:=X1)
@@ -47,8 +47,7 @@ for (i in seq_along(subs)){
   }
   BOLD_V1_frame=as.data.frame(BOLD_v1_list)
   #remove runs that are not full length
-  BOLD_V1_frame <- BOLD_V1_frame %>%
-    select(where(~ !any(is.na(.))))
+  BOLD_V1_frame <- BOLD_V1_frame %>%select_if(~ !any(is.na(.)))
   # compute pairwise correlation of filtered V1 signal and phase across runs
   BOLD_V1_corr=cor(BOLD_V1_frame)
   BOLD_V1_corr_vector <- BOLD_V1_corr[upper.tri(BOLD_V1_corr)]
@@ -60,9 +59,9 @@ for (i in seq_along(subs)){
     run_extracted <- regmatches(phase_files_V1[j], run_match)
     run_extracted=unlist(run_extracted)
     temp=read_csv(phase_files_V1[j],col_names = FALSE)
-    if (length(unlist(temp))<215){
+    if (length(unlist(temp))<255){
       temp<-temp%>%
-        bind_rows(tibble(X1=rep(NA,215-length(unlist(temp)))))
+        bind_rows(tibble(X1=rep(NA,255-length(unlist(temp)))))
     }
     temp=temp%>%
       rename(!!run_extracted:=X1)
@@ -70,8 +69,7 @@ for (i in seq_along(subs)){
   }
   phase_V1_frame=as.data.frame(phase_v1_list)
   #remove runs that are not full length
-  phase_V1_frame <- phase_V1_frame %>%
-    select(where(~ !any(is.na(.))))
+  phase_V1_frame <- phase_V1_frame %>%select_if(~ !any(is.na(.)))
   # compute pairwise correlation of filtered V1 signal and phase across runs
   phase_V1_corr=cor(phase_V1_frame)
   phase_V1_corr_vector <- phase_V1_corr[upper.tri(phase_V1_corr)]
@@ -147,6 +145,9 @@ for (i in TRs){
   dev.off()
 }# The middle TRs have pretty spread-out distributions of phase, which is expected since subjects likely diverged in their behaviors (e.g., eye-closing pattern) during a run.
 
+#looking at phase distribution every 10 TRs
+every10=seq(1,215,10)
+phase_df_start1every10=phase_df%>%filter(TR %in% every10)
 
 ################quantify how much error we will make if we estimate a subject's run-onsets with the initial phase of all other subjects#######
 for (sub in unique(phase_df$SSID)){
